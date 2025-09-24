@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
-import joblib
 
 # Initialize FastAPI
 app = FastAPI(title="DistilBERT Inference API")
@@ -11,11 +10,24 @@ app = FastAPI(title="DistilBERT Inference API")
 model_path = "./saved_model"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
-le = joblib.load("./saved_model/label_encoder.pkl")
 
 # Define request body
 class TextInput(BaseModel):
     text: str
+
+id2label = {
+    0: "Bills & Utilities",
+    1: "Education",
+    2: "Entertainment",
+    3: "Food & Drinks",
+    4: "Groceries",
+    5: "Health & Fitness",
+    6: "Income",
+    7: "Investments",
+    8: "Miscellaneous",
+    9: "Shopping",
+    10: "Travel & Transport"
+}
 
 @app.post("/predict")
 def predict(input: TextInput):
@@ -28,4 +40,4 @@ def predict(input: TextInput):
         logits = outputs.logits
         predicted_class_id = torch.argmax(logits, dim=1).item()
 
-    return {"text": input.text, "predicted_class": le.inverse_transform([predicted_class_id])[0]}
+    return {"text": input.text, "predicted_category": id2label[predicted_class_id]}
