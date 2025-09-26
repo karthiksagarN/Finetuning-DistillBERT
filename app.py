@@ -7,7 +7,7 @@ import torch
 app = FastAPI(title="DistilBERT Inference API")
 
 # Load model and tokenizer
-model_path = "./saved_model"
+model_path = "./saved_model_version2"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
